@@ -31,6 +31,13 @@ namespace SchoolRunApp.API.Repositories
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
+        public async Task<StudentProfile?> GetByAdmissionNumberAsync(string admissionNumber)
+        {
+            return await _context.StudentProfiles
+                .Include(s => s.Class)
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.AdmissionNumber == admissionNumber);
+        }
 
         public async Task AddStudentAsync(StudentProfile student)
         {

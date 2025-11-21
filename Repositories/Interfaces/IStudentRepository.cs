@@ -1,6 +1,6 @@
-using SchoolRunApp.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SchoolRunApp.API.Models;
 
 namespace SchoolRunApp.API.Repositories.Interfaces
 {
@@ -8,6 +8,9 @@ namespace SchoolRunApp.API.Repositories.Interfaces
     {
         Task<IEnumerable<StudentProfile>> GetAllStudentsAsync();
         Task<StudentProfile?> GetStudentByIdAsync(int id);
+
+        Task<StudentProfile?> GetByAdmissionNumberAsync(string admissionNumber);
+        
         Task AddStudentAsync(StudentProfile student);
         Task UpdateStudentAsync(StudentProfile student);
         Task DeleteStudentAsync(int id);

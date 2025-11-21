@@ -13,7 +13,9 @@ namespace SchoolRunApp.API.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Result> Results { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
-
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<StudentActivity> StudentActivities { get; set; }
+        public DbSet<TeacherProfile> TeacherProfiles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -41,6 +43,20 @@ namespace SchoolRunApp.API.Data
                 .HasOne(r => r.Student)
                 .WithMany(s => s.Results)
                 .HasForeignKey(r => r.StudentId);
-        }
+                  
+                   //Many-to-many between Student and Activity
+                modelBuilder.Entity<StudentActivity>()
+                    .HasKey(sa => new { sa.StudentId, sa.ActivityId });
+
+                modelBuilder.Entity<StudentActivity>()
+                    .HasOne(sa => sa.Student)
+                    .WithMany(s => s.Activities)
+                    .HasForeignKey(sa => sa.StudentId);
+
+                modelBuilder.Entity<StudentActivity>()
+                    .HasOne(sa => sa.Activity)
+                    .WithMany(a => a.StudentActivities)
+                    .HasForeignKey(sa => sa.ActivityId);
+                    }
     }
 }
