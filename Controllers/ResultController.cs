@@ -1,58 +1,54 @@
 using Microsoft.AspNetCore.Mvc;
-using SchoolRunApp.API.DTOs;
+using SchoolRunApp.API.DTOs.Result;
 using SchoolRunApp.API.Services.Interfaces;
-using System.Threading.Tasks;
 
 namespace SchoolRunApp.API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class ResultController : ControllerBase
     {
-        private readonly IResultService _resultService;
+        private readonly IResultService _service;
 
-        public ResultController(IResultService resultService)
+        public ResultController(IResultService service)
         {
-            _resultService = resultService;
+            _service = service;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var results = await _resultService.GetAllAsync();
-            return Ok(results);
+            return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _resultService.GetByIdAsync(id);
-            if (result == null) return NotFound(new { message = "Result not found" });
+            var result = await _service.GetByIdAsync(id);
+            if (result == null) return NotFound();
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResultDto dto)
+        public async Task<IActionResult> Create(CreateResultDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var created = await _resultService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var result = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ResultDto dto)
+        public async Task<IActionResult> Update(int id, UpdateResultDto dto)
         {
-            var updated = await _resultService.UpdateAsync(id, dto);
-            if (!updated) return NotFound(new { message = "Result not found" });
+            var ok = await _service.UpdateAsync(id, dto);
+            if (!ok) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _resultService.DeleteAsync(id);
-            if (!deleted) return NotFound(new { message = "Result not found" });
+            var ok = await _service.DeleteAsync(id);
+            if (!ok) return NotFound();
             return NoContent();
         }
     }

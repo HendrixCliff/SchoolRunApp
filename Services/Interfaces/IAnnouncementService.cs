@@ -1,4 +1,5 @@
 using SchoolRunApp.API.DTOs;
+using SchoolRunApp.API.DTOs.Announcement;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,8 +9,8 @@ namespace SchoolRunApp.API.Services.Interfaces
     {
         Task<IEnumerable<AnnouncementDto>> GetAllAsync();
         Task<AnnouncementDto?> GetByIdAsync(int id);
-        Task<AnnouncementDto> CreateAsync(AnnouncementDto dto);
-        Task<bool> UpdateAsync(int id, AnnouncementDto dto);
+        Task<AnnouncementDto> CreateAsync(CreateAnnouncementDto dto);
+        Task<bool> UpdateAsync(int id, UpdateAnnouncementDto dto);
         Task<bool> DeleteAsync(int id);
     }
 }

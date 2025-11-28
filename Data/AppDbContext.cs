@@ -43,6 +43,12 @@ namespace SchoolRunApp.API.Data
                 .HasOne(r => r.Student)
                 .WithMany(s => s.Results)
                 .HasForeignKey(r => r.StudentId);
+                
+            modelBuilder.Entity<Result>()
+                .HasOne(r => r.Class)
+                .WithMany()
+                .HasForeignKey(r => r.ClassId);
+
                   
                    //Many-to-many between Student and Activity
                 modelBuilder.Entity<StudentActivity>()
@@ -53,10 +59,29 @@ namespace SchoolRunApp.API.Data
                     .WithMany(s => s.Activities)
                     .HasForeignKey(sa => sa.StudentId);
 
-                modelBuilder.Entity<StudentActivity>()
-                    .HasOne(sa => sa.Activity)
-                    .WithMany(a => a.StudentActivities)
-                    .HasForeignKey(sa => sa.ActivityId);
+            modelBuilder.Entity<StudentActivity>()
+                .HasOne(sa => sa.Activity)
+                .WithMany(a => a.StudentActivities)
+                .HasForeignKey(sa => sa.ActivityId);
+                    
+                    modelBuilder.Entity<Announcement>()
+    .HasOne(a => a.Class)
+    .WithMany()
+    .HasForeignKey(a => a.ClassId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Announcement>()
+    .HasOne(a => a.Subject)
+    .WithMany()
+    .HasForeignKey(a => a.SubjectId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Announcement>()
+    .HasOne(a => a.Student)
+    .WithMany()
+    .HasForeignKey(a => a.StudentId)
+    .OnDelete(DeleteBehavior.Restrict);
+
                     }
     }
 }

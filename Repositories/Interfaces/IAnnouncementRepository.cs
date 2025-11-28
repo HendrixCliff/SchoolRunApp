@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SchoolRunApp.API.Repositories.Interfaces
 {
-    public interface IAnnouncementRepository
+       public interface IAnnouncementRepository
     {
         Task<IEnumerable<Announcement>> GetAllAsync();
         Task<Announcement?> GetByIdAsync(int id);
@@ -13,4 +13,5 @@ namespace SchoolRunApp.API.Repositories.Interfaces
         Task DeleteAsync(int id);
         Task SaveChangesAsync();
     }
+
 }

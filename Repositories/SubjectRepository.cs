@@ -14,6 +14,11 @@ namespace SchoolRunApp.API.Repositories
 
         public async Task<IEnumerable<Subject>> GetAllAsync() => await _context.Subjects.ToListAsync();
         public async Task<Subject?> GetByIdAsync(int id) => await _context.Subjects.FindAsync(id);
+        public async Task<Subject?> GetByCodeAsync(string code)
+            {
+                return await _context.Subjects
+                    .FirstOrDefaultAsync(s => s.Code == code);
+            }
 
         public async Task AddAsync(Subject subject) => await _context.Subjects.AddAsync(subject);
         public async Task UpdateAsync(Subject subject) => _context.Subjects.Update(subject);

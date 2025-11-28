@@ -1,4 +1,4 @@
-using SchoolRunApp.API.DTOs;
+using SchoolRunApp.API.DTOs.Subject;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,8 +8,8 @@ namespace SchoolRunApp.API.Services.Interfaces
     {
         Task<IEnumerable<SubjectDto>> GetAllAsync();
         Task<SubjectDto?> GetByIdAsync(int id);
-        Task<SubjectDto> CreateAsync(SubjectDto dto);
-        Task<bool> UpdateAsync(int id, SubjectDto dto);
+        Task<SubjectDto> CreateAsync(CreateSubjectDto dto);
+        Task<bool> UpdateAsync(int id, UpdateSubjectDto dto);
         Task<bool> DeleteAsync(int id);
     }
 }

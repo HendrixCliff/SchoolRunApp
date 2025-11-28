@@ -1,8 +1,7 @@
 namespace SchoolRunApp.API.DTOs.Subject
 {
-    public class SubjectDto
+    public class CreateSubjectDto
     {
-        public int Id { get; set; }
         public string SubjectName { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
     }

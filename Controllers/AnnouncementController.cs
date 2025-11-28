@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SchoolRunApp.API.DTOs;
+using SchoolRunApp.API.DTOs.Announcement;
 using SchoolRunApp.API.Services.Interfaces;
 using System.Threading.Tasks;
 
@@ -7,53 +7,47 @@ namespace SchoolRunApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AnnouncementController : ControllerBase
+   public class AnnouncementController : ControllerBase
     {
-        private readonly IAnnouncementService _announcementService;
+        private readonly IAnnouncementService _service;
 
-        public AnnouncementController(IAnnouncementService announcementService)
+        public AnnouncementController(IAnnouncementService service)
         {
-            _announcementService = announcementService;
+            _service = service;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var announcements = await _announcementService.GetAllAsync();
-            return Ok(announcements);
+            return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var announcement = await _announcementService.GetByIdAsync(id);
-            if (announcement == null) return NotFound(new { message = "Announcement not found" });
-            return Ok(announcement);
+            var result = await _service.GetByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AnnouncementDto dto)
+        public async Task<IActionResult> Create(CreateAnnouncementDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var created = await _announcementService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var response = await _service.CreateAsync(dto);
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] AnnouncementDto dto)
+        public async Task<IActionResult> Update(int id, UpdateAnnouncementDto dto)
         {
-            var updated = await _announcementService.UpdateAsync(id, dto);
-            if (!updated) return NotFound(new { message = "Announcement not found" });
-            return NoContent();
+            var success = await _service.UpdateAsync(id, dto);
+            return success ? Ok() : NotFound();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _announcementService.DeleteAsync(id);
-            if (!deleted) return NotFound(new { message = "Announcement not found" });
-            return NoContent();
+            var success = await _service.DeleteAsync(id);
+            return success ? Ok() : NotFound();
         }
     }
 }

@@ -1,21 +1,13 @@
 namespace SchoolRunApp.API.DTOs.Result
 {
-public class ResultDto
+    public class CreateResultDto
     {
-        public int Id { get; set; }
-
         public int StudentId { get; set; }
-        public string StudentName { get; set; }
-
         public int SubjectId { get; set; }
-        public string SubjectName { get; set; }
-
         public int ClassId { get; set; }
-        public string ClassName { get; set; }
 
         public double Score { get; set; }
         public string Term { get; set; }
         public string Session { get; set; }
     }
-
 }

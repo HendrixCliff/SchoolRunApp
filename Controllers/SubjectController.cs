@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using SchoolRunApp.API.DTOs;
+using SchoolRunApp.API.DTOs.Subject;
 using SchoolRunApp.API.Services.Interfaces;
+using SchoolRunApp.API.Services;
 using System.Threading.Tasks;
 
 namespace SchoolRunApp.API.Controllers
@@ -32,7 +33,7 @@ namespace SchoolRunApp.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] SubjectDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateSubjectDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -41,7 +42,7 @@ namespace SchoolRunApp.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SubjectDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateSubjectDto dto)
         {
             var updated = await _subjectService.UpdateAsync(id, dto);
             if (!updated) return NotFound(new { message = "Subject not found" });
