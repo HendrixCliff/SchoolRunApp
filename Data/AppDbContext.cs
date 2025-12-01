@@ -7,7 +7,7 @@ namespace SchoolRunApp.API.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
+       
         public DbSet<Class> Classes { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
         public DbSet<Subject> Subjects { get; set; }
@@ -16,6 +16,8 @@ namespace SchoolRunApp.API.Data
         public DbSet<Activity> Activities { get; set; }
         public DbSet<StudentActivity> StudentActivities { get; set; }
         public DbSet<TeacherProfile> TeacherProfiles { get; set; }
+         public DbSet<User> User { get; set; }
+          public DbSet<EmailSettings> EmailSettings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -64,24 +66,24 @@ namespace SchoolRunApp.API.Data
                 .WithMany(a => a.StudentActivities)
                 .HasForeignKey(sa => sa.ActivityId);
                     
-                    modelBuilder.Entity<Announcement>()
-    .HasOne(a => a.Class)
-    .WithMany()
-    .HasForeignKey(a => a.ClassId)
-    .OnDelete(DeleteBehavior.Restrict);
+                            modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.Class)
+            .WithMany()
+            .HasForeignKey(a => a.ClassId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Announcement>()
-    .HasOne(a => a.Subject)
-    .WithMany()
-    .HasForeignKey(a => a.SubjectId)
-    .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.Subject)
+            .WithMany()
+            .HasForeignKey(a => a.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Announcement>()
-    .HasOne(a => a.Student)
-    .WithMany()
-    .HasForeignKey(a => a.StudentId)
-    .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.Student)
+            .WithMany()
+            .HasForeignKey(a => a.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-                    }
+       }
     }
 }

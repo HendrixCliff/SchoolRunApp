@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SchoolRunApp.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6aff08b23ea4fdf42ef50e955c2da4d9fae9ddd5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6fac2aaf4fe52f4e0062c2009e83b3c7f1b2f4b6")]
 [assembly: System.Reflection.AssemblyProductAttribute("SchoolRunApp.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SchoolRunApp.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

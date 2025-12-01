@@ -3,6 +3,7 @@ using SchoolRunApp.API.Repositories;
 using SchoolRunApp.API.Repositories.Interfaces;
 using SchoolRunApp.API.Services;
 using SchoolRunApp.API.Data;
+using SchoolRunApp.API.Models;
 using SchoolRunApp.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,13 +23,20 @@ builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IResultRepository, ResultRepository>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IStudentActivityRepository, StudentActivityRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IResultService, ResultService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
 

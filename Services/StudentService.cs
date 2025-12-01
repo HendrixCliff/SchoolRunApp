@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SchoolRunApp.API.Repositories.Interfaces;
 using SchoolRunApp.API.Services.Interfaces;
-using SchoolRunApp.API.Services;
-using SchoolRunApp.API.Repositories;
 using SchoolRunApp.API.Models;
 using SchoolRunApp.API.DTOs.Student;
 
@@ -31,20 +29,26 @@ namespace SchoolRunApp.API.Services
             _logger = logger;
         }
 
+        
         public async Task<IEnumerable<StudentDto>> GetAllStudentsAsync()
         {
             var students = await _repo.GetAllStudentsAsync();
+
             return students.Select(s => new StudentDto
             {
                 Id = s.Id,
-                FullName = s.User?.FullName ?? string.Empty,
+                FullName = s.User?.FullName ?? "",
                 AdmissionNumber = s.AdmissionNumber,
-                ClassName = s.Class?.ClassName ?? string.Empty,
+                ClassId = s.ClassId,
+                ClassName = s.Class?.ClassName ?? "",
                 Gender = s.Gender,
-                DateOfBirth = s.DateOfBirth
+                DateOfBirth = s.DateOfBirth,
+                Address = s.Address,
+                UserId = s.UserId
             });
         }
 
+        
         public async Task<StudentDto?> GetStudentByIdAsync(int id)
         {
             var s = await _repo.GetStudentByIdAsync(id);
@@ -53,119 +57,112 @@ namespace SchoolRunApp.API.Services
             return new StudentDto
             {
                 Id = s.Id,
-                FullName = s.User?.FullName ?? string.Empty,
+                FullName = s.User?.FullName ?? "",
                 AdmissionNumber = s.AdmissionNumber,
-                ClassName = s.Class?.ClassName ?? string.Empty,
+                ClassId = s.ClassId,
+                ClassName = s.Class?.ClassName ?? "",
                 Gender = s.Gender,
-                DateOfBirth = s.DateOfBirth
+                DateOfBirth = s.DateOfBirth,
+                Address = s.Address,
+                UserId = s.UserId
             };
         }
 
-        public async Task<StudentDto> CreateStudentAsync(StudentDto dto)
+    
+        public async Task<bool> CreateStudentAsync(CreateStudentDto dto)
         {
-            // ✅ Validate input
-            if (dto == null)
-                throw new ArgumentNullException(nameof(dto), "Student data cannot be null.");
-            if (string.IsNullOrWhiteSpace(dto.AdmissionNumber))
-                throw new ArgumentException("Admission number is required.", nameof(dto.AdmissionNumber));
-
-            // ✅ Check duplicates
+          
             var existing = await _repo.GetByAdmissionNumberAsync(dto.AdmissionNumber);
             if (existing != null)
-                throw new InvalidOperationException($"A student with admission number {dto.AdmissionNumber} already exists.");
+                throw new InvalidOperationException("Admission number already exists.");
 
-            // ✅ Verify class
-            var targetClass = await _classRepo.GetByIdAsync(dto.ClassId);
-            if (targetClass == null)
+           
+            var classEntity = await _classRepo.GetByIdAsync(dto.ClassId);
+            if (classEntity == null)
+                throw new InvalidOperationException("Class not found.");
+
+         
+            var newUser = new User
             {
-                _logger.LogWarning("Class with ID {ClassId} not found. Defaulting to class ID 1.", dto.ClassId);
-                dto.ClassId = 1;
-            }
+                FullName = dto.FullName.Trim(),
+                Email = dto.Email.Trim(),
+                Role = "Student",
+                IsActive = false,
+                TempActivationCode = Guid.NewGuid().ToString("N").Substring(0, 6)
+            };
 
-            // ✅ Verify user if provided
-            if (dto.UserId.HasValue)
-            {
-                var user = await _userRepo.GetByIdAsync(dto.UserId.Value);
-                if (user == null)
-                    throw new InvalidOperationException($"User with ID {dto.UserId.Value} does not exist.");
-            }
+            await _userRepo.AddUserAsync(newUser);
+            await _userRepo.SaveChangesAsync();
 
+           
             var student = new StudentProfile
             {
-                AdmissionNumber = dto.AdmissionNumber.Trim(),
+                AdmissionNumber = dto.AdmissionNumber,
                 Gender = dto.Gender,
                 DateOfBirth = dto.DateOfBirth,
-                Address = string.IsNullOrWhiteSpace(dto.Address) ? "N/A" : dto.Address.Trim(),
+                Address = dto.Address ?? "N/A",
                 ClassId = dto.ClassId,
-                UserId = dto.UserId ?? 0,
+                UserId = newUser.Id,
                 CreatedAt = DateTime.UtcNow
             };
 
-            try
-            {
-                await _repo.AddStudentAsync(student);
-                await _repo.SaveChangesAsync();
+            await _repo.AddStudentAsync(student);
+            await _repo.SaveChangesAsync();
 
-                dto.Id = student.Id;
-                _logger.LogInformation("Student {AdmissionNumber} created successfully with ID {Id}", dto.AdmissionNumber, student.Id);
-                return dto;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating student {AdmissionNumber}", dto.AdmissionNumber);
-                throw new ApplicationException("An error occurred while creating the student. Please try again.", ex);
-            }
+            // TODO: Send Activation Email (Plug Email Service)
+
+            return true;
         }
 
-        public async Task<bool> UpdateStudentAsync(int id, StudentDto dto)
+        
+        public async Task<bool> ActivateStudentAsync(ActivateStudentDto dto)
         {
-            var existing = await _repo.GetStudentByIdAsync(id);
-            if (existing == null)
-            {
-                _logger.LogWarning("Student with ID {Id} not found for update.", id);
+            var student = await _repo.GetByAdmissionNumberAsync(dto.AdmissionNumber);
+            if (student == null) return false;
+
+            var user = await _userRepo.GetByIdAsync(student.UserId);
+            if (user == null) return false;
+
+            if (user.TempActivationCode != dto.ActivationCode)
                 return false;
-            }
 
-            existing.AdmissionNumber = dto.AdmissionNumber;
-            existing.Gender = dto.Gender;
-            existing.DateOfBirth = dto.DateOfBirth;
-            existing.Address = dto.Address ?? existing.Address;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            user.IsActive = true;
+            user.TempActivationCode = null;
 
-            try
-            {
-                await _repo.UpdateStudentAsync(existing);
-                await _repo.SaveChangesAsync();
-                _logger.LogInformation("Student with ID {Id} updated successfully.", id);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating student with ID {Id}", id);
-                throw new ApplicationException("An error occurred while updating the student.", ex);
-            }
+            await _userRepo.UpdateUserAsync(user);
+            await _userRepo.SaveChangesAsync();
+
+            return true;
         }
 
+        
+        public async Task<bool> UpdateStudentAsync(int id, UpdateStudentDto dto)
+        {
+            var student = await _repo.GetStudentByIdAsync(id);
+            if (student == null) return false;
+
+            student.Gender = dto.Gender;
+            student.Address = dto.Address;
+            student.DateOfBirth = dto.DateOfBirth;
+            student.ClassId = dto.ClassId;
+
+            await _repo.UpdateStudentAsync(student);
+            await _repo.SaveChangesAsync();
+
+            return true;
+        }
+
+    
         public async Task<bool> DeleteStudentAsync(int id)
         {
-            var existing = await _repo.GetStudentByIdAsync(id);
-            if (existing == null)
-            {
-                _logger.LogWarning("Attempted to delete non-existent student with ID {Id}.", id);
-                return false;
-            }
+            var student = await _repo.GetStudentByIdAsync(id);
+            if (student == null) return false;
 
-            try
-            {
-                await _repo.DeleteStudentAsync(id);
-                await _repo.SaveChangesAsync();
-                _logger.LogInformation("Student with ID {Id} deleted successfully.", id);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting student with ID {Id}", id);
-                throw new ApplicationException("An error occurred while deleting the student.", ex);
-            }
+            await _repo.DeleteStudentAsync(id);
+            await _repo.SaveChangesAsync();
+
+            return true;
         }
     }
 }

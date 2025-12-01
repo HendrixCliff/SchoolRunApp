@@ -1,0 +1,20 @@
+NEXT STEP
+
+Now that Teacher module is complete, pick what we do next:
+
+1️⃣ Authentication Module (Activate account + Login)
+2️⃣ Role-based system (Teacher/Admin/Student)
+3️⃣ Class & Subject assignment for teachers
+4️⃣ Teacher → Class → Subject → Timetable system
+5️⃣ Student Activation system
+
+
+✔ TeacherProfile model
+✔ All DTOs
+✔ Repository + Interface
+✔ Service + Interface
+✔ Controller
+✔ Auto User Creation
+✔ Activation Code
+✔ Email-based activation
+✔ Full security

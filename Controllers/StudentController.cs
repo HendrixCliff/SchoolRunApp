@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using SchoolRunApp.API.DTOs.Student;
 using SchoolRunApp.API.Services.Interfaces;
+using SchoolRunApp.API.DTOs.Student;
 
 namespace SchoolRunApp.API.Controllers
 {
@@ -15,42 +15,77 @@ namespace SchoolRunApp.API.Controllers
             _service = service;
         }
 
+       
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var students = await _service.GetAllStudentsAsync();
-            return Ok(students);
+            var result = await _service.GetAllStudentsAsync();
+            return Ok(result);
         }
 
-        [HttpGet("{id}")]
+       
         public async Task<IActionResult> GetById(int id)
         {
             var student = await _service.GetStudentByIdAsync(id);
-            if (student == null) return NotFound();
+            if (student == null)
+                return NotFound(new { message = "Student not found" });
+
             return Ok(student);
         }
 
+
+        // CREATE STUDENT (admin/staff creates profile)
+        // Auto-creates User + Sends Activation code
+       
         [HttpPost]
-        public async Task<IActionResult> Create(StudentDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateStudentDto dto)
         {
-            var created = await _service.CreateStudentAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var success = await _service.CreateStudentAsync(dto);
+
+            return success
+                ? Ok(new { message = "Student created and activation code sent." })
+                : BadRequest(new { message = "Unable to create student" });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, StudentDto dto)
+      
+        // ACTIVATE STUDENT ACCOUNT
+        // Student uses admission number + activation code + password
+       
+        [HttpPost("activate")]
+        public async Task<IActionResult> Activate([FromBody] ActivateStudentDto dto)
         {
-            var updated = await _service.UpdateStudentAsync(id, dto);
-            if (!updated) return NotFound();
-            return NoContent();
+            var success = await _service.ActivateStudentAsync(dto);
+
+            return success
+                ? Ok(new { message = "Account activated successfully!" })
+                : BadRequest(new { message = "Invalid activation code or admission number" });
         }
 
-        [HttpDelete("{id}")]
+       
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateStudentDto dto)
+        {
+            var success = await _service.UpdateStudentAsync(id, dto);
+
+            return success
+                ? Ok(new { message = "Student updated successfully" })
+                : NotFound(new { message = "Student not found" });
+        }
+
+        // -----------------------------------------
+        // DELETE STUDENT
+        // -----------------------------------------
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _service.DeleteStudentAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var success = await _service.DeleteStudentAsync(id);
+
+            return success
+                ? Ok(new { message = "Student deleted successfully" })
+                : NotFound(new { message = "Student not found" });
         }
     }
 }

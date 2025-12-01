@@ -8,8 +8,9 @@ namespace SchoolRunApp.API.Services.Interfaces
     {
         Task<IEnumerable<StudentDto>> GetAllStudentsAsync();
         Task<StudentDto?> GetStudentByIdAsync(int id);
-        Task<StudentDto> CreateStudentAsync(StudentDto dto);
-        Task<bool> UpdateStudentAsync(int id, StudentDto dto);
+        Task<bool> CreateStudentAsync(CreateStudentDto dto);
+        Task<bool> ActivateStudentAsync(ActivateStudentDto dto);
+        Task<bool> UpdateStudentAsync(int id, UpdateStudentDto dto);
         Task<bool> DeleteStudentAsync(int id);
     }
 }
