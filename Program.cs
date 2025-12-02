@@ -5,6 +5,9 @@ using SchoolRunApp.API.Services;
 using SchoolRunApp.API.Data;
 using SchoolRunApp.API.Services.Interfaces;
 using SchoolRunApp.API.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
