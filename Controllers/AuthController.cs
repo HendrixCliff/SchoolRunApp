@@ -11,38 +11,13 @@ namespace SchoolRunApp.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _auth;
+        private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService auth, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
         {
-            _auth = auth;
+            _authService = authService;
             _logger = logger;
-        }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-        {
-            try
-            {
-                var result = await _auth.RegisterAsync(dto);
-                return Created(string.Empty, result);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogWarning(ex, "Bad request during registration");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Invalid operation during registration");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error during registration");
-                return StatusCode(500, new { message = "An error occurred" });
-            }
         }
 
         [HttpPost("login")]
@@ -50,19 +25,58 @@ namespace SchoolRunApp.API.Controllers
         {
             try
             {
-                var result = await _auth.LoginAsync(dto);
-                return Ok(result);
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Invalid login attempt");
-                return Unauthorized(new { message = ex.Message });
+                var r = await _authService.LoginAsync(dto);
+                return Ok(r);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error during login");
-                return StatusCode(500, new { message = "An error occurred" });
+                _logger.LogWarning(ex, "Invalid login attempt for {Email}", dto?.Email);
+                return Unauthorized(new { message = "Invalid credentials" });
             }
+        }
+
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordReset(RequestPasswordResetDto dto)
+        {
+            var ok = await _authService.RequestPasswordResetAsync(dto);
+            return Ok(new { success = ok, message = "If your email exists, a reset code has been sent." });
+        }
+
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyReset(VerifyResetCodeDto dto)
+        {
+            var ok = await _authService.VerifyResetCodeAsync(dto);
+            return Ok(new { valid = ok });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+        {
+            var ok = await _authService.ResetPasswordAsync(dto);
+            if (!ok) return BadRequest("Invalid or expired reset code.");
+
+            return Ok(new { message = "Password reset successfully." });
+        }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequestDto dto)
+        {
+            try
+            {
+                var r = await _authService.RefreshTokenAsync(dto);
+                return Ok(r);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Invalid refresh attempt for {Email}", dto?.Email);
+                return BadRequest(new { message = "Invalid refresh token" });
+            }
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RevokeRefreshDto dto)
+        {
+            var ok = await _authService.RevokeRefreshTokenAsync(dto);
+            return Ok(new { success = ok });
         }
     }
 }

@@ -5,7 +5,11 @@ namespace SchoolRunApp.API.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
         Task<AuthResponseDto> LoginAsync(LoginDto dto);
+        Task<bool> RequestPasswordResetAsync(RequestPasswordResetDto dto);
+        Task<bool> VerifyResetCodeAsync(VerifyResetCodeDto dto);
+        Task<bool> ResetPasswordAsync(ResetPasswordDto dto);
+        Task<AuthResponseDto> RefreshTokenAsync(RefreshRequestDto dto);
+        Task<bool> RevokeRefreshTokenAsync(RevokeRefreshDto dto);
     }
 }

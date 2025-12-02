@@ -9,12 +9,18 @@ Now that Teacher module is complete, pick what we do next:
 5️⃣ Student Activation system
 
 
-✔ TeacherProfile model
-✔ All DTOs
-✔ Repository + Interface
-✔ Service + Interface
-✔ Controller
-✔ Auto User Creation
-✔ Activation Code
-✔ Email-based activation
-✔ Full security
+ TeacherProfile model
+ All DTOs
+ Repository + Interface
+ Service + Interface
+ Controller
+ Auto User Creation
+ Activation Code
+ Email-based activation
+ Full security
+
+Provide a version that stores refresh tokens in a RefreshTokens table (one row per device) for multi-device sessions.
+
+Switch to cookie-based refresh tokens for browser clients.
+
+Add middleware to validate JWT and inject current user info into controllers.
